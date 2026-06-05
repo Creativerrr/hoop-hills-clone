@@ -59,9 +59,16 @@ export default class App {
   populateSeasons() {
     const sel = document.getElementById("season");
     sel.innerHTML = "";
-    const o = document.createElement("option");
-    o.value = "2026"; o.textContent = "2025-26"; sel.appendChild(o);
-    sel.value = "2026";
+    const seasons = [["2026", "2025-26"], ["2025", "2024-25"], ["2024", "2023-24"], ["2023", "2022-23"], ["2022", "2021-22"]];
+    for (const [val, label] of seasons) {
+      const o = document.createElement("option");
+      o.value = val; o.textContent = label; sel.appendChild(o);
+    }
+    sel.value = this.season;
+    sel.addEventListener("change", () => {
+      this.season = sel.value;
+      this.loadTeam(this.team);
+    });
   }
 
   bindToggleGroup(id, attr, set) {

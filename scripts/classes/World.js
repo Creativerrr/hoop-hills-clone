@@ -25,6 +25,9 @@ export default class World {
     this.hovered = null;
     this.setupHover();
 
+    const gizmo = document.getElementById("logo");
+    if (gizmo) this.bindGizmo(gizmo);
+
     window.addEventListener("resize", () => this.onResize());
     this.animate = this.animate.bind(this);
     this.renderer.setAnimationLoop(this.animate);
@@ -41,6 +44,35 @@ export default class World {
       this.hovered = null;
       this.app.onHover?.(null);
     });
+  }
+
+  // drag the view-cube to orbit the camera around the terrain
+  bindGizmo(el) {
+    let dragging = false, lx = 0, ly = 0;
+    el.addEventListener("pointerdown", (e) => {
+      dragging = true; lx = e.clientX; ly = e.clientY;
+      el.setPointerCapture(e.pointerId); el.classList.add("grabbing"); e.preventDefault();
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lx, dy = e.clientY - ly;
+      lx = e.clientX; ly = e.clientY;
+      this.orbitDelta(-dx * 0.011, dy * 0.011);
+    });
+    const end = (e) => { dragging = false; el.classList.remove("grabbing"); try { el.releasePointerCapture(e.pointerId); } catch {} };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+  }
+
+  orbitDelta(dTheta, dPhi) {
+    const offset = this.camera.position.clone().sub(this.controls.target);
+    const sph = new THREE.Spherical().setFromVector3(offset);
+    sph.theta += dTheta;
+    sph.phi = Math.max(0.12, Math.min(Math.PI / 2 - 0.04, sph.phi + dPhi));
+    offset.setFromSpherical(sph);
+    this.camera.position.copy(this.controls.target).add(offset);
+    this.camera.lookAt(this.controls.target);
+    this.controls.update();
   }
 
   checkHover() {
@@ -87,27 +119,18 @@ export default class World {
     this.controls.dampingFactor = 0.08;
     this.controls.enablePan = true;
     this.controls.target.set(0, 0, 0);
-
-    // idle auto-rotate
-    this.controls.autoRotateSpeed = 0.45;
-    this.idleDelay = 4000;
-    this.lastInteraction = performance.now();
-    const wake = () => { this.lastInteraction = performance.now(); this.controls.autoRotate = false; };
-    this.controls.addEventListener("start", wake);
-    this.canvas.addEventListener("pointermove", wake);
-    this.canvas.addEventListener("wheel", wake, { passive: true });
+    this.controls.autoRotate = false; // static hero angle, like the original
   }
 
   setupLights() {
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-    // key light from upper-back → tonal gradient (front-dark, back-light) like the original
-    const key = new THREE.DirectionalLight(0xffffff, 0.85);
-    key.position.set(-0.4, 1.3, -1);
+    // bright ambient so the vivid base colors read; gentle directional for subtle depth
+    this.scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+    const key = new THREE.DirectionalLight(0xffffff, 0.35);
+    key.position.set(0.3, 1.2, 0.6); // upper-front so the faces we see stay vivid
     this.scene.add(key);
-    // soft fill from the front so shadows don't crush
-    const fill = new THREE.DirectionalLight(0xdfe8fb, 0.3);
-    fill.position.set(0.6, 0.5, 1);
-    this.scene.add(fill);
+    const back = new THREE.DirectionalLight(0xffffff, 0.22);
+    back.position.set(-0.3, 0.8, -1); // slight back rim for depth
+    this.scene.add(back);
   }
 
   setGames(games, options = {}) {
@@ -173,9 +196,6 @@ export default class World {
   }
 
   animate() {
-    if (performance.now() - this.lastInteraction > this.idleDelay) {
-      this.controls.autoRotate = true;
-    }
     this.controls.update();
     this.annotations?.update(this.camera, window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene, this.camera);

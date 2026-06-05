@@ -16,37 +16,42 @@ export default class Floor {
     const hz = d / 2;
 
     this.addShadow(w, d, y, sizeX, sizeZ);
-    this.addCourt(sizeX * 1.04, sizeZ * 1.04, y);
+    // large faint court filling the background, like the original
+    const courtSpan = Math.max(sizeX, sizeZ) * 2.6;
+    this.addCourt(courtSpan * 1.9, courtSpan, y - 0.2);
     this.addGrid(w, d, y);
     this.addPeriods(wps, offX, hz, y, sizeZ);
   }
 
-  // faint basketball-court watermark under the terrain
+  // faint full basketball court filling the background (like the original)
   addCourt(w, d, y) {
+    const W = 1900, H = 1000; // ~1.88:1, real court proportion
     const c = document.createElement("canvas");
-    c.width = 1024; c.height = 1024;
+    c.width = W; c.height = H;
     const ctx = c.getContext("2d");
-    ctx.strokeStyle = "rgba(255,255,255,0.55)";
+    ctx.strokeStyle = "rgba(255,255,255,0.5)";
     ctx.lineWidth = 4;
-    const W = 1024, H = 1024, m = 70;
-    ctx.strokeRect(m, m, W - 2 * m, H - 2 * m); // boundary
+    const m = 90;
+    ctx.strokeRect(m, m, W - 2 * m, H - 2 * m);                       // boundary
     ctx.beginPath(); ctx.moveTo(W / 2, m); ctx.lineTo(W / 2, H - m); ctx.stroke(); // half-court line
-    ctx.beginPath(); ctx.arc(W / 2, H / 2, 110, 0, Math.PI * 2); ctx.stroke(); // center circle
-    // two keys + free-throw circles
-    const keyW = 150, keyH = 230;
-    for (const side of [m, W - m - keyH]) {
-      ctx.strokeRect(side, H / 2 - keyW / 2, keyH, keyW);
-      const cx = side < W / 2 ? side + keyH : side;
-      ctx.beginPath(); ctx.arc(cx, H / 2, 75, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(W / 2, H / 2, 120, 0, Math.PI * 2); ctx.stroke();     // center circle
+    const keyW = 280, keyH = 380; // keys + free-throw circles + 3pt arcs
+    for (const left of [m, W - m - keyH]) {
+      ctx.strokeRect(left, H / 2 - keyW / 2, keyH, keyW);
+      const cx = left < W / 2 ? left + keyH : left;
+      ctx.beginPath(); ctx.arc(cx, H / 2, 90, 0, Math.PI * 2); ctx.stroke();
+      const hoopX = left < W / 2 ? m + 50 : W - m - 50;
+      ctx.beginPath();
+      ctx.arc(hoopX, H / 2, 360, left < W / 2 ? -Math.PI / 2.3 : Math.PI / 2.3,
+        left < W / 2 ? Math.PI / 2.3 : 3 * Math.PI / 2.3); ctx.stroke(); // 3-point arc
     }
     const tex = new THREE.CanvasTexture(c);
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(w, d),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.32, depthWrite: false })
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.3, depthWrite: false })
     );
     plane.rotation.x = -Math.PI / 2;
-    plane.rotation.z = Math.PI / 2; // align long axis of court with the games depth
-    plane.position.y = y - 0.15;
+    plane.position.set(0, y, 0);
     this.group.add(plane);
   }
 

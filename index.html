@@ -42,12 +42,16 @@
     </div>
   </div>
 
-  <!-- top-right: cube logo -->
-  <svg id="logo" viewBox="0 0 100 100" width="58" height="58" aria-hidden="true">
-    <polygon points="50,6 90,28 90,72 50,94 10,72 10,28" fill="none" stroke="#1b2434" stroke-width="2.5"/>
-    <polygon points="50,50 90,28 90,72 50,94" fill="#1b2434" opacity="0.12"/>
-    <polyline points="10,28 50,50 90,28" fill="none" stroke="#1b2434" stroke-width="2.5"/>
-    <line x1="50" y1="50" x2="50" y2="94" stroke="#1b2434" stroke-width="2.5"/>
+  <!-- top-right: interactive view cube (drag to rotate) -->
+  <svg id="logo" viewBox="0 0 100 100" width="62" height="62" title="Drag to rotate">
+    <!-- isometric cube: hexagon outline + 3 visible faces -->
+    <polygon points="50,8 88,30 88,70 50,92 12,70 12,30" fill="none" stroke="#1b2434" stroke-width="2.4"/>
+    <polygon points="50,8 88,30 50,52 12,30" fill="#1b2434" opacity="0.16"/>
+    <polygon points="88,30 88,70 50,92 50,52" fill="#1b2434" opacity="0.30"/>
+    <polygon points="12,30 50,52 50,92 12,70" fill="#1b2434" opacity="0.08"/>
+    <polyline points="50,8 50,52" fill="none" stroke="#1b2434" stroke-width="2.4"/>
+    <polyline points="12,30 50,52 88,30" fill="none" stroke="#1b2434" stroke-width="2.4"/>
+    <polyline points="50,52 50,92" fill="none" stroke="#1b2434" stroke-width="2.4"/>
   </svg>
 
   <!-- bottom-left: games / periods / rounds -->

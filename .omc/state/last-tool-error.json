@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__playwright__browser_evaluate",
+  "tool_input_preview": "{\"function\":\"() => {\\n  // simulate a hover over the middle of the terrain\\n  const canvas = document.getElementById('scene');\\n  const cx = window.innerWidth * 0.5, cy = window.innerHeight * 0.45;\\n ...",
+  "error": "### Error\nTypeError: Cannot read properties of null (reading 'options')\n    at eval (eval at <anonymous> (eval at evaluate (:302:30)), <anonymous>:9:57)\n    at eval (eval at evaluate (:302:30), <anonymous>:4:50)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+  "timestamp": "2026-06-05T02:59:33.571Z",
+  "retry_count": 1
+}

@@ -26,12 +26,11 @@ export default class Hills {
     this.depth = 1.3; // per-game ridge depth → ~square-ish footprint like the original
     this.gap = 0;
 
-    // diverging palette: vivid & saturated near the competitive baseline, lightening to
-    // both extremes (light-blue peaks, light-red deep valleys) — like the original.
-    this.blueLow = new THREE.Color(0x16397e); // leading, near baseline (deep vivid blue)
-    this.blueHigh = new THREE.Color(0xaaccf2); // biggest leads (light blue peaks)
-    this.redLow = new THREE.Color(0xd83a22); // trailing, near baseline (vivid orange-red)
-    this.redHigh = new THREE.Color(0xf6c4b6); // deepest trails (light, toward white)
+    // palette sampled directly from the original's rendered pixels
+    this.blueLow = new THREE.Color(0x114f9c); // leading, near baseline (deep royal blue)
+    this.blueHigh = new THREE.Color(0xb0d2e8); // biggest leads (light blue peaks)
+    this.redLow = new THREE.Color(0xc41f1a); // trailing, near baseline (vivid red)
+    this.redHigh = new THREE.Color(0xf5573c); // deepest trails (bright orange-red)
     this._c = new THREE.Color();
 
     this.group = new THREE.Group();
@@ -55,8 +54,8 @@ export default class Hills {
   }
 
   build() {
-    // Lambert + lights give the smooth tonal gradient (front-dark→back-light) the original has
-    const material = new THREE.MeshLambertMaterial({ vertexColors: true });
+    // flat vertex colors (no light multiplication) keep the palette vivid; per-face shade adds depth
+    const material = new THREE.MeshBasicMaterial({ vertexColors: true });
 
     // global height range for a consistent color scale across all games
     let maxLead = 0, maxTrail = 0;
@@ -115,11 +114,12 @@ export default class Hills {
         const x0 = cs * wps;
         const x1 = ce * wps;
 
-        this.pushQuad(positions, colors, [x0, h, z0], [x1, h, z0], [x1, h, z1], [x0, h, z1], base);
-        this.pushQuad(positions, colors, [x0, yLo, z0], [x1, yLo, z0], [x1, yHi, z0], [x0, yHi, z0], base);
-        this.pushQuad(positions, colors, [x1, yLo, z1], [x0, yLo, z1], [x0, yHi, z1], [x1, yHi, z1], base);
-        this.pushQuad(positions, colors, [x0, yLo, z1], [x0, yLo, z0], [x0, yHi, z0], [x0, yHi, z1], base);
-        this.pushQuad(positions, colors, [x1, yLo, z0], [x1, yLo, z1], [x1, yHi, z1], [x1, yHi, z0], base);
+        const S = { top: 1.0, front: 0.93, side: 0.84 };
+        this.pushQuad(positions, colors, [x0, h, z0], [x1, h, z0], [x1, h, z1], [x0, h, z1], base, S.top);
+        this.pushQuad(positions, colors, [x0, yLo, z0], [x1, yLo, z0], [x1, yHi, z0], [x0, yHi, z0], base, S.front);
+        this.pushQuad(positions, colors, [x1, yLo, z1], [x0, yLo, z1], [x0, yHi, z1], [x1, yHi, z1], base, S.front);
+        this.pushQuad(positions, colors, [x0, yLo, z1], [x0, yLo, z0], [x0, yHi, z0], [x0, yHi, z1], base, S.side);
+        this.pushQuad(positions, colors, [x1, yLo, z0], [x1, yLo, z1], [x1, yHi, z1], [x1, yHi, z0], base, S.side);
       }
     }
 
@@ -128,14 +128,13 @@ export default class Hills {
     const geom = new THREE.BufferGeometry();
     geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    geom.computeVertexNormals(); // per-face normals → Lambert shading
     geom.computeBoundingBox();
     return geom;
   }
 
-  // push two triangles (a, b, c) + (a, c, d) with a flat base color (lighting does the shading)
-  pushQuad(positions, colors, a, b, c, d, baseColor) {
-    const { r, g, b: bl } = baseColor;
+  // push two triangles (a, b, c) + (a, c, d) with a subtly shaded base color
+  pushQuad(positions, colors, a, b, c, d, baseColor, shade = 1) {
+    const r = baseColor.r * shade, g = baseColor.g * shade, bl = baseColor.b * shade;
     const verts = [a, b, c, a, c, d];
     for (const v of verts) {
       positions.push(v[0], v[1], v[2]);
