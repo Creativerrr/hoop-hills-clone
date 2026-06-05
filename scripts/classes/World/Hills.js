@@ -26,11 +26,12 @@ export default class Hills {
     this.depth = 2.4; // per-game ridge depth → ~2.4:1 rectangle proportion like the original
     this.gap = 0;
 
-    // height-gradient palette (base hue; Lambert lighting adds tonal depth on top)
-    this.blueLow = new THREE.Color(0x1c4ea8); // leading, near baseline (deep blue)
-    this.blueHigh = new THREE.Color(0xbcd6f5); // biggest leads (light-blue tips, not white)
-    this.redLow = new THREE.Color(0xe07a70); // trailing, near baseline (light red)
-    this.redHigh = new THREE.Color(0xb01b12); // deepest trails (saturated)
+    // diverging palette: vivid & saturated near the competitive baseline, lightening to
+    // both extremes (light-blue peaks, light-red deep valleys) — like the original.
+    this.blueLow = new THREE.Color(0x16397e); // leading, near baseline (deep vivid blue)
+    this.blueHigh = new THREE.Color(0xaaccf2); // biggest leads (light blue peaks)
+    this.redLow = new THREE.Color(0xd83a22); // trailing, near baseline (vivid orange-red)
+    this.redHigh = new THREE.Color(0xf6c4b6); // deepest trails (light, toward white)
     this._c = new THREE.Color();
 
     this.group = new THREE.Group();

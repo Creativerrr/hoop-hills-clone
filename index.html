@@ -18,31 +18,50 @@
 <body>
   <canvas id="scene"></canvas>
 
+  <!-- top-left: title + info card -->
   <header id="title">
     <h1>Hoop Hills</h1>
-    <p>Every moment a team <span class="lead">led</span> or <span class="trail">trailed</span> across a season</p>
+    <p class="subtitle">Explore the peaks and valleys of NBA games</p>
+    <div id="info-card">
+      This chart shows every moment a team was
+      <b class="lead">leading</b> or <b class="trail">trailing</b> during the season
+    </div>
+    <button id="toggle-filters">HIDE FILTERS</button>
   </header>
 
-  <div id="controls">
-    <div class="row">
-      <label for="team">Team</label>
+  <!-- top-center: team vs opponent -->
+  <div id="matchup">
+    <div class="field">
+      <label for="team">Your team</label>
       <select id="team"></select>
     </div>
-    <div class="row">
+    <span class="x">×</span>
+    <div class="field">
       <label for="opponent">Opponent</label>
       <select id="opponent"></select>
     </div>
-    <div class="row">
-      <label>Rounds</label>
-      <div id="rounds" class="toggles">
-        <button data-round="RS" class="on">Regular</button>
-        <button data-round="PI" class="on">Play-In</button>
-        <button data-round="PO" class="on">Playoffs</button>
+  </div>
+
+  <!-- top-right: cube logo -->
+  <svg id="logo" viewBox="0 0 100 100" width="58" height="58" aria-hidden="true">
+    <polygon points="50,6 90,28 90,72 50,94 10,72 10,28" fill="none" stroke="#1b2434" stroke-width="2.5"/>
+    <polygon points="50,50 90,28 90,72 50,94" fill="#1b2434" opacity="0.12"/>
+    <polyline points="10,28 50,50 90,28" fill="none" stroke="#1b2434" stroke-width="2.5"/>
+    <line x1="50" y1="50" x2="50" y2="94" stroke="#1b2434" stroke-width="2.5"/>
+  </svg>
+
+  <!-- bottom-left: games / periods / rounds -->
+  <div id="filters-left" class="panel">
+    <div class="group">
+      <label>Games</label>
+      <div id="games" class="pills">
+        <button data-result="won" class="on">Won</button>
+        <button data-result="lost" class="on">Lost</button>
       </div>
     </div>
-    <div class="row">
+    <div class="group">
       <label>Periods</label>
-      <div id="periods" class="toggles">
+      <div id="periods" class="pills">
         <button data-period="Q1" class="on">Q1</button>
         <button data-period="Q2" class="on">Q2</button>
         <button data-period="Q3" class="on">Q3</button>
@@ -50,21 +69,52 @@
         <button data-period="OT" class="on">OT</button>
       </div>
     </div>
-    <div class="row"><span id="status">loading…</span></div>
+    <div class="group">
+      <label>Rounds</label>
+      <div id="rounds" class="pills">
+        <button data-round="RS" class="on">Regular Season</button>
+        <button data-round="PI" class="on">Play-In</button>
+        <button data-round="PO" class="on">Playoffs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- bottom-center: date slider -->
+  <div id="dates">
+    <div class="date-label">All dates</div>
+    <input id="date-slider" type="range" min="0" max="100" value="100" />
+  </div>
+
+  <!-- bottom-right: count + season + sort -->
+  <div id="filters-right">
+    <div id="count">
+      <div class="count-total"><span id="count-games">–</span></div>
+      <div id="count-bar"><span id="bar-won"></span><span id="bar-lost"></span></div>
+      <div class="count-split">
+        <span class="won"><b id="count-won">–</b> won</span>
+        <span class="lost"><b id="count-lost">–</b> lost</span>
+      </div>
+    </div>
+    <div class="rb-row">
+      <div class="field">
+        <label for="season">Season</label>
+        <select id="season"></select>
+      </div>
+      <div class="field">
+        <label>Sort by</label>
+        <div id="sortby" class="pills">
+          <button data-sort="margin" class="on">Win Margin</button>
+          <button data-sort="date">Date</button>
+        </div>
+      </div>
+    </div>
+    <div class="attribution">Fan-made clone. Data from basketball-reference.com</div>
   </div>
 
   <div id="annotations"></div>
-
   <div id="tooltip" hidden>
     <div class="tt-head"></div>
     <div class="tt-body"></div>
-  </div>
-
-  <div id="stats">
-    <div class="stat"><span class="k">Record</span><span class="v" data-stat="record">–</span></div>
-    <div class="stat"><span class="k">Biggest win</span><span class="v" data-stat="win">–</span></div>
-    <div class="stat"><span class="k">Biggest comeback</span><span class="v" data-stat="comeback">–</span></div>
-    <div class="stat"><span class="k">Worst collapse</span><span class="v" data-stat="collapse">–</span></div>
   </div>
 
   <script type="module" src="scripts/index.js"></script>
