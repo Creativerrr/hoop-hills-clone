@@ -99,10 +99,15 @@ export default class World {
   }
 
   setupLights() {
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const dir = new THREE.DirectionalLight(0xffffff, 0.6);
-    dir.position.set(1, 2, 1);
-    this.scene.add(dir);
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.72));
+    // key light from upper-back → tonal gradient (front-dark, back-light) like the original
+    const key = new THREE.DirectionalLight(0xffffff, 0.85);
+    key.position.set(-0.4, 1.3, -1);
+    this.scene.add(key);
+    // soft fill from the front so shadows don't crush
+    const fill = new THREE.DirectionalLight(0xdfe8fb, 0.3);
+    fill.position.set(0.6, 0.5, 1);
+    this.scene.add(fill);
   }
 
   setGames(games, options = {}) {
