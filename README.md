@@ -1,5 +1,7 @@
 # Hoop Hills — clone
 
+**Live:** https://creativerrr.github.io/hoop-hills-clone/
+
 A from-scratch rebuild of Vinicius Sueiro's **Hoop Hills** (https://vsueiro.com/hoop-hills/) —
 an orthographic 3D data-art piece showing the score evolution of every NBA game in a season.
 Each game is a ridge; **blue = team leading, red = trailing**. The orthographic camera makes it
