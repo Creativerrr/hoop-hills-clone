@@ -22,8 +22,8 @@ export default class Hills {
 
     // encoding constants (from the original)
     this.widthPerSecond = 100 / 2880; // a regulation game (2880s) ≈ 100 units wide
-    this.heightPerPoint = 0.75; // 1 point of differential = 0.75 units tall
-    this.depth = 2.4; // per-game ridge depth → ~2.4:1 rectangle proportion like the original
+    this.heightPerPoint = 0.5; // 1 point of differential = 0.5 units tall (flatter, draped surface)
+    this.depth = 1.3; // per-game ridge depth → ~square-ish footprint like the original
     this.gap = 0;
 
     // diverging palette: vivid & saturated near the competitive baseline, lightening to

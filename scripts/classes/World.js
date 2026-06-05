@@ -143,12 +143,18 @@ export default class World {
     // frame the terrain
     this.controls.target.copy(center);
     const aspect = window.innerWidth / window.innerHeight;
-    const fit = Math.max(size.y * 1.6, (size.x + size.z) * 0.62);
+    const fit = Math.max(size.y * 1.7, (size.x + size.z) * 0.6);
     this.frustum = fit;
     this.updateFrustum(aspect);
-    // low frontal "mountain range" hero angle (~22° elevation)
-    const reach = Math.max(size.x, size.z) * 1.15;
-    this.camera.position.set(center.x + reach * 0.82, center.y + reach * 0.4, center.z + reach * 0.72);
+    // low front-left hero angle: long (games) axis recedes to upper-right, like the original
+    const az = THREE.MathUtils.degToRad(this.camAzimuth ?? 225);
+    const el = THREE.MathUtils.degToRad(this.camElevation ?? 33);
+    const reach = Math.max(size.x, size.z) * 1.3;
+    this.camera.position.set(
+      center.x + reach * Math.cos(el) * Math.cos(az),
+      center.y + reach * Math.sin(el),
+      center.z + reach * Math.cos(el) * Math.sin(az)
+    );
     this.camera.lookAt(center);
   }
 
