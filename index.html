@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoop Hills (clone) — Peaks &amp; Valleys of NBA Games</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.176/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.176/examples/jsm/",
+        "d3": "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <header id="title">
+    <h1>Hoop Hills</h1>
+    <p>Every moment a team <span class="lead">led</span> or <span class="trail">trailed</span> across a season</p>
+  </header>
+
+  <div id="controls">
+    <div class="row">
+      <label for="team">Team</label>
+      <select id="team"></select>
+    </div>
+    <div class="row">
+      <label for="opponent">Opponent</label>
+      <select id="opponent"></select>
+    </div>
+    <div class="row">
+      <label>Rounds</label>
+      <div id="rounds" class="toggles">
+        <button data-round="RS" class="on">Regular</button>
+        <button data-round="PI" class="on">Play-In</button>
+        <button data-round="PO" class="on">Playoffs</button>
+      </div>
+    </div>
+    <div class="row">
+      <label>Periods</label>
+      <div id="periods" class="toggles">
+        <button data-period="Q1" class="on">Q1</button>
+        <button data-period="Q2" class="on">Q2</button>
+        <button data-period="Q3" class="on">Q3</button>
+        <button data-period="Q4" class="on">Q4</button>
+        <button data-period="OT" class="on">OT</button>
+      </div>
+    </div>
+    <div class="row"><span id="status">loading…</span></div>
+  </div>
+
+  <div id="annotations"></div>
+
+  <div id="tooltip" hidden>
+    <div class="tt-head"></div>
+    <div class="tt-body"></div>
+  </div>
+
+  <div id="stats">
+    <div class="stat"><span class="k">Record</span><span class="v" data-stat="record">–</span></div>
+    <div class="stat"><span class="k">Biggest win</span><span class="v" data-stat="win">–</span></div>
+    <div class="stat"><span class="k">Biggest comeback</span><span class="v" data-stat="comeback">–</span></div>
+    <div class="stat"><span class="k">Worst collapse</span><span class="v" data-stat="collapse">–</span></div>
+  </div>
+
+  <script type="module" src="scripts/index.js"></script>
+</body>
+</html>
