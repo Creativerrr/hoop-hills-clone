@@ -42,18 +42,14 @@
     </div>
   </div>
 
-  <!-- top-right: interactive ViewCube — drag to rotate, click a face to snap to a view -->
-  <svg id="logo" viewBox="0 0 100 100" width="100" height="100" title="Drag to rotate · click a face for top / side / front view">
-    <!-- true isometric cube (aspect 1.14), enlarged to fill the viewBox like the original -->
-    <polygon class="face face-top"   data-view="top"   points="50,6 89,28 50,50 11,28" />
-    <polygon class="face face-front" data-view="front" points="89,28 89,72 50,94 50,50" />
-    <polygon class="face face-side"  data-view="side"  points="11,28 50,50 50,94 11,72" />
-    <!-- perspective "home": bold purple down-triangle on the top face -->
-    <polygon class="home" data-view="perspective" points="32,18 68,18 50,47" />
-    <!-- crisp outline -->
-    <polygon class="edge" points="50,6 89,28 89,72 50,94 11,72 11,28" fill="none" />
-    <polyline class="edge" points="11,28 50,50 89,28" fill="none" />
-    <polyline class="edge" points="50,50 50,94" fill="none" />
+  <!-- top-right: interactive ViewCube — EXACT geometry from the original (4 isometric faces).
+       Drag to rotate · click a face to snap to that chart view. -->
+  <svg id="logo" viewBox="0 0 100 100" width="96" height="96" title="Drag to rotate · click a face for grid / lines / bars view">
+    <path class="face" data-view="top"   d="M8.43066 25.9998L50.0001 2L91.5694 25.9996L70.7769 38.004L70.7795 37.9994H29.2152L8.43066 25.9998Z" />
+    <path class="face" data-view="front" d="M29.2147 37.9993L8.43066 25.9995L8.43129 73.9994L50.0003 97.9997L50.0001 73.9984L29.2101 37.9993Z" />
+    <path class="face" data-view="side"  d="M91.5678 25.9995L91.5675 73.9996L49.9985 97.9999L49.9987 73.9976L70.7746 38.0048L91.5678 25.9995Z" />
+    <!-- center down-triangle = the 3/4 "corner" / perspective view -->
+    <path class="face home" data-view="perspective" d="M70.7823 37.9995H29.2129L50.0026 73.999L70.7823 37.9995Z" />
   </svg>
 
   <!-- bottom-left: games / periods / rounds -->

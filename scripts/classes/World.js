@@ -47,11 +47,13 @@ export default class World {
   }
 
   // ViewCube: drag to free-rotate, click a face to snap to a canonical view
+  // angles match the original camera "views" (three.js spherical → az/el-from-horizon):
+  //   corner θ45°/φ64.8° → el 25.2°; grid φ0 → straight down; lines/bars → edge-on.
   VIEWS = {
-    perspective: [225, 33], // 3/4 hero
-    top: [270, 89.5],       // straight down, axis-aligned → heat map
-    front: [270, 1.5],      // along games axis → line chart (time × margin)
-    side: [180, 1.5],       // along time axis → bar chart (games × final margin)
+    perspective: [225, 25], // 3/4 hero (original "corner": low ~25° elevation)
+    top: [270, 89.5],       // straight down, axis-aligned → heat map ("grid")
+    front: [270, 1.5],      // along games axis → line chart ("lines")
+    side: [180, 1.5],       // along time axis → bar chart ("bars")
   };
 
   bindGizmo(el) {
@@ -68,15 +70,22 @@ export default class World {
       lx = e.clientX; ly = e.clientY;
       if (moved) this.orbitDelta(-dx * 0.011, dy * 0.011);
     });
+    const setActive = (view) => {
+      el.querySelectorAll(".face").forEach((f) => f.classList.toggle("active", f.dataset.view === view));
+    };
     const end = (e) => {
       if (down && !moved && startView && this.VIEWS[startView]) {
         this.snapToView(...this.VIEWS[startView]);
+        setActive(startView);
+      } else if (down && moved) {
+        el.querySelectorAll(".face").forEach((f) => f.classList.remove("active")); // free rotation = no canonical view
       }
       down = false; el.classList.remove("grabbing");
       try { el.releasePointerCapture(e.pointerId); } catch {}
     };
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", end);
+    setActive("perspective"); // default hero view
   }
 
   posForView(azDeg, elDeg) {
@@ -207,7 +216,7 @@ export default class World {
     this.updateFrustum(aspect);
     // low front-left hero angle: long (games) axis recedes to upper-right, like the original
     this.reach = Math.max(size.x, size.z) * 1.3;
-    this.camera.position.copy(this.posForView(225, 33));
+    this.camera.position.copy(this.posForView(...this.VIEWS.perspective));
     this.camera.lookAt(center);
   }
 

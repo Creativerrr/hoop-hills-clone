@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { interpolateBlues, interpolateReds } from "d3";
 
 // Builds the terrain: one ridge ("hill") per game.
 // X = game time, Y = point differential, Z = game order. Blue above 0, red below.
@@ -20,18 +21,16 @@ export default class Hills {
       .filter(Boolean)
       .sort((a, b) => a[0] - b[0]);
 
-    // encoding constants (from the original)
+    // encoding constants (exact values from the original source)
     this.widthPerSecond = 100 / 2880; // a regulation game (2880s) ≈ 100 units wide
-    this.heightPerPoint = 0.58; // 1 point of differential = 0.58 units tall (relief like the original)
+    this.heightPerPoint = 0.75; // 1 point of differential = 0.75 units tall (original relief)
     this.depth = 1.3; // per-game ridge depth → ~square-ish footprint like the original
     this.gap = 0;
 
-    // vivid diverging palette — lighten toward light-but-SATURATED hues (not washed
-    // lavender/peach) so the flat top-view heatmap stays vivid like the original
-    this.blueLow = new THREE.Color(0x1c5db0); // leading, near baseline (deep saturated blue)
-    this.blueHigh = new THREE.Color(0x66a3ea); // biggest leads (light but saturated blue)
-    this.redLow = new THREE.Color(0xd22e20); // trailing, near baseline (deep saturated red)
-    this.redHigh = new THREE.Color(0xfa6a45); // deepest trails (bright saturated orange)
+    // EXACT original palette: d3.interpolateBlues / interpolateReds on a FIXED ±50-point
+    // scale. A 1-pt lead → dark blue; a 50-pt lead → near-white. Same for trails in red.
+    // This is what gives the "snow-capped" look: peaks & valleys fade to white.
+    this.tied = new THREE.Color("#201853"); // dark navy/purple for pd === 0 (legend.tied)
     this._c = new THREE.Color();
 
     this.group = new THREE.Group();
@@ -51,14 +50,19 @@ export default class Hills {
     return pd;
   }
 
-  // map a segment's top height to a base color (lighting adds the tonal depth on top)
-  colorForHeight(h) {
-    if (h >= 0) {
-      const t = this.maxH > 0 ? Math.min(1, h / this.maxH) : 0;
-      return this._c.copy(this.blueLow).lerp(this.blueHigh, Math.pow(t, 1.4));
+  // EXACT original color mapping (Hill.js): color by point differential on a fixed
+  // ±50 scale. leading → interpolateBlues((50-pd)/49); trailing → interpolateReds((pd+50)/51).
+  // Big leads/trails approach white (peaks & valleys), small ones are dark & saturated.
+  colorForPd(pd) {
+    if (pd > 0) {
+      const v = Math.max(0, Math.min(1, (50 - pd) / 49));
+      return this._c.set(interpolateBlues(v));
     }
-    const t = this.minH < 0 ? Math.min(1, h / this.minH) : 0;
-    return this._c.copy(this.redLow).lerp(this.redHigh, Math.pow(t, 1.4));
+    if (pd < 0) {
+      const v = Math.max(0, Math.min(1, (pd + 50) / 51));
+      return this._c.set(interpolateReds(v));
+    }
+    return this._c.copy(this.tied);
   }
 
   build() {
@@ -110,7 +114,7 @@ export default class Hills {
       const h = s.pd * hpp;
       if (h === 0) continue;
 
-      const base = this.colorForHeight(h);
+      const base = this.colorForPd(s.pd);
       const yLo = Math.min(0, h);
       const yHi = Math.max(0, h);
 
@@ -122,13 +126,32 @@ export default class Hills {
         const x0 = cs * wps;
         const x1 = ce * wps;
 
-        const S = { top: 1.0, front: 0.93, side: 0.84 };
+        // original uses a flat single-color box per play; keep only a whisper of face
+        // shading so same-height plateaus still read as 3D, otherwise faithful to flat
+        const S = { top: 1.0, front: 0.95, side: 0.9 };
         this.pushQuad(positions, colors, [x0, h, z0], [x1, h, z0], [x1, h, z1], [x0, h, z1], base, S.top);
         this.pushQuad(positions, colors, [x0, yLo, z0], [x1, yLo, z0], [x1, yHi, z0], [x0, yHi, z0], base, S.front);
         this.pushQuad(positions, colors, [x1, yLo, z1], [x0, yLo, z1], [x0, yHi, z1], [x1, yHi, z1], base, S.front);
         this.pushQuad(positions, colors, [x0, yLo, z1], [x0, yLo, z0], [x0, yHi, z0], [x0, yHi, z1], base, S.side);
         this.pushQuad(positions, colors, [x1, yLo, z0], [x1, yLo, z1], [x1, yHi, z1], [x1, yHi, z0], base, S.side);
       }
+    }
+
+    // dark "win-margin" mark at the final score (original: navy 0x201853 cube at game end).
+    // From the side view these line up into the dark margin profile the story calls out.
+    const last = samples[samples.length - 1];
+    const fh = game.finalDiff * hpp;
+    if (last) {
+      const xEnd = Math.min(last.t, 2880) * wps;
+      const mW = 0.7, mH = 0.4;
+      const xA = xEnd - mW, xB = xEnd;
+      const yA = fh - mH / 2, yB = fh + mH / 2;
+      const navy = this.tied;
+      this.pushQuad(positions, colors, [xA, yB, z0], [xB, yB, z0], [xB, yB, z1], [xA, yB, z1], navy, 1);
+      this.pushQuad(positions, colors, [xA, yA, z0], [xB, yA, z0], [xB, yB, z0], [xA, yB, z0], navy, 1);
+      this.pushQuad(positions, colors, [xB, yA, z1], [xA, yA, z1], [xA, yB, z1], [xB, yB, z1], navy, 1);
+      this.pushQuad(positions, colors, [xA, yA, z1], [xA, yA, z0], [xA, yB, z0], [xA, yB, z1], navy, 1);
+      this.pushQuad(positions, colors, [xB, yA, z0], [xB, yA, z1], [xB, yB, z1], [xB, yB, z0], navy, 1);
     }
 
     if (positions.length === 0) return null;

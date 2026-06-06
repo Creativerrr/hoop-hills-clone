@@ -23,32 +23,16 @@ export default class Floor {
     this.addPeriods(wps, offX, hz, y, sizeZ);
   }
 
-  // faint full basketball court filling the background (like the original)
+  // faint full basketball court filling the background — the REAL nba-court.png the
+  // original uses (16:9). Original renders it at ~0.066 opacity; we use a touch more so
+  // it actually reads over the lavender gradient.
   addCourt(w, d, y) {
-    const W = 1900, H = 1000; // ~1.88:1, real court proportion
-    const c = document.createElement("canvas");
-    c.width = W; c.height = H;
-    const ctx = c.getContext("2d");
-    ctx.strokeStyle = "rgba(255,255,255,0.5)";
-    ctx.lineWidth = 4;
-    const m = 90;
-    ctx.strokeRect(m, m, W - 2 * m, H - 2 * m);                       // boundary
-    ctx.beginPath(); ctx.moveTo(W / 2, m); ctx.lineTo(W / 2, H - m); ctx.stroke(); // half-court line
-    ctx.beginPath(); ctx.arc(W / 2, H / 2, 120, 0, Math.PI * 2); ctx.stroke();     // center circle
-    const keyW = 280, keyH = 380; // keys + free-throw circles + 3pt arcs
-    for (const left of [m, W - m - keyH]) {
-      ctx.strokeRect(left, H / 2 - keyW / 2, keyH, keyW);
-      const cx = left < W / 2 ? left + keyH : left;
-      ctx.beginPath(); ctx.arc(cx, H / 2, 90, 0, Math.PI * 2); ctx.stroke();
-      const hoopX = left < W / 2 ? m + 50 : W - m - 50;
-      ctx.beginPath();
-      ctx.arc(hoopX, H / 2, 360, left < W / 2 ? -Math.PI / 2.3 : Math.PI / 2.3,
-        left < W / 2 ? Math.PI / 2.3 : 3 * Math.PI / 2.3); ctx.stroke(); // 3-point arc
-    }
-    const tex = new THREE.CanvasTexture(c);
+    const dd = d, ww = d * (16 / 9); // lock to the image's true 16:9 ratio
+    const tex = new THREE.TextureLoader().load("media/nba-court.png");
+    tex.colorSpace = THREE.SRGBColorSpace;
     const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(w, d),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.3, depthWrite: false })
+      new THREE.PlaneGeometry(ww, dd),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.14, depthWrite: false })
     );
     plane.rotation.x = -Math.PI / 2;
     plane.position.set(0, y, 0);
