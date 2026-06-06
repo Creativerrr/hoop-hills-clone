@@ -26,11 +26,12 @@ export default class Hills {
     this.depth = 1.3; // per-game ridge depth → ~square-ish footprint like the original
     this.gap = 0;
 
-    // palette tuned to match the original's sampled mid/light values per color
-    this.blueLow = new THREE.Color(0x2576bd); // leading, near baseline (saturated medium blue)
-    this.blueHigh = new THREE.Color(0xc2cce9); // biggest leads (light lavender peaks)
-    this.redLow = new THREE.Color(0xe23c2b); // trailing, near baseline (vivid orange-red)
-    this.redHigh = new THREE.Color(0xfbb39a); // deepest trails (light peach)
+    // vivid diverging palette — lighten toward light-but-SATURATED hues (not washed
+    // lavender/peach) so the flat top-view heatmap stays vivid like the original
+    this.blueLow = new THREE.Color(0x1c5db0); // leading, near baseline (deep saturated blue)
+    this.blueHigh = new THREE.Color(0x66a3ea); // biggest leads (light but saturated blue)
+    this.redLow = new THREE.Color(0xd22e20); // trailing, near baseline (deep saturated red)
+    this.redHigh = new THREE.Color(0xfa6a45); // deepest trails (bright saturated orange)
     this._c = new THREE.Color();
 
     this.group = new THREE.Group();
@@ -47,15 +48,15 @@ export default class Hills {
   colorForHeight(h) {
     if (h >= 0) {
       const t = this.maxH > 0 ? Math.min(1, h / this.maxH) : 0;
-      return this._c.copy(this.blueLow).lerp(this.blueHigh, Math.pow(t, 2.1));
+      return this._c.copy(this.blueLow).lerp(this.blueHigh, Math.pow(t, 1.4));
     }
     const t = this.minH < 0 ? Math.min(1, h / this.minH) : 0;
-    return this._c.copy(this.redLow).lerp(this.redHigh, Math.pow(t, 2.0));
+    return this._c.copy(this.redLow).lerp(this.redHigh, Math.pow(t, 1.4));
   }
 
   build() {
-    // flat vertex colors (no light multiplication) keep the palette vivid; per-face shade adds depth
-    const material = new THREE.MeshBasicMaterial({ vertexColors: true });
+    // double-sided so trailing boxes (which hang below y=0) still read from straight above
+    const material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
 
     // global height range for a consistent color scale across all games
     let maxLead = 0, maxTrail = 0;
