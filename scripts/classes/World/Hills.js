@@ -22,15 +22,15 @@ export default class Hills {
 
     // encoding constants (from the original)
     this.widthPerSecond = 100 / 2880; // a regulation game (2880s) ≈ 100 units wide
-    this.heightPerPoint = 0.5; // 1 point of differential = 0.5 units tall (flatter, draped surface)
+    this.heightPerPoint = 0.58; // 1 point of differential = 0.58 units tall (relief like the original)
     this.depth = 1.3; // per-game ridge depth → ~square-ish footprint like the original
     this.gap = 0;
 
-    // palette sampled directly from the original's rendered pixels
-    this.blueLow = new THREE.Color(0x114f9c); // leading, near baseline (deep royal blue)
-    this.blueHigh = new THREE.Color(0xb0d2e8); // biggest leads (light blue peaks)
-    this.redLow = new THREE.Color(0xc41f1a); // trailing, near baseline (vivid red)
-    this.redHigh = new THREE.Color(0xf5573c); // deepest trails (bright orange-red)
+    // palette tuned to match the original's sampled mid/light values per color
+    this.blueLow = new THREE.Color(0x2576bd); // leading, near baseline (saturated medium blue)
+    this.blueHigh = new THREE.Color(0xc2cce9); // biggest leads (light lavender peaks)
+    this.redLow = new THREE.Color(0xe23c2b); // trailing, near baseline (vivid orange-red)
+    this.redHigh = new THREE.Color(0xfbb39a); // deepest trails (light peach)
     this._c = new THREE.Color();
 
     this.group = new THREE.Group();
@@ -47,10 +47,10 @@ export default class Hills {
   colorForHeight(h) {
     if (h >= 0) {
       const t = this.maxH > 0 ? Math.min(1, h / this.maxH) : 0;
-      return this._c.copy(this.blueLow).lerp(this.blueHigh, Math.pow(t, 1.6));
+      return this._c.copy(this.blueLow).lerp(this.blueHigh, Math.pow(t, 2.1));
     }
     const t = this.minH < 0 ? Math.min(1, h / this.minH) : 0;
-    return this._c.copy(this.redLow).lerp(this.redHigh, Math.pow(t, 1.3));
+    return this._c.copy(this.redLow).lerp(this.redHigh, Math.pow(t, 2.0));
   }
 
   build() {

@@ -166,7 +166,7 @@ export default class World {
     // frame the terrain
     this.controls.target.copy(center);
     const aspect = window.innerWidth / window.innerHeight;
-    const fit = Math.max(size.y * 1.7, (size.x + size.z) * 0.6);
+    const fit = Math.max(size.y * 1.6, (size.x + size.z) * 0.5);
     this.frustum = fit;
     this.updateFrustum(aspect);
     // low front-left hero angle: long (games) axis recedes to upper-right, like the original
