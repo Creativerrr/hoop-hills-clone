@@ -42,16 +42,18 @@
     </div>
   </div>
 
-  <!-- top-right: interactive view cube (drag to rotate) -->
-  <svg id="logo" viewBox="0 0 100 100" width="62" height="62" title="Drag to rotate">
-    <!-- isometric cube: hexagon outline + 3 visible faces -->
-    <polygon points="50,8 88,30 88,70 50,92 12,70 12,30" fill="none" stroke="#1b2434" stroke-width="2.4"/>
-    <polygon points="50,8 88,30 50,52 12,30" fill="#1b2434" opacity="0.16"/>
-    <polygon points="88,30 88,70 50,92 50,52" fill="#1b2434" opacity="0.30"/>
-    <polygon points="12,30 50,52 50,92 12,70" fill="#1b2434" opacity="0.08"/>
-    <polyline points="50,8 50,52" fill="none" stroke="#1b2434" stroke-width="2.4"/>
-    <polyline points="12,30 50,52 88,30" fill="none" stroke="#1b2434" stroke-width="2.4"/>
-    <polyline points="50,52 50,92" fill="none" stroke="#1b2434" stroke-width="2.4"/>
+  <!-- top-right: interactive ViewCube — drag to rotate, click a face to snap to a view -->
+  <svg id="logo" viewBox="0 0 100 100" width="64" height="64" title="Drag to rotate · click a face for top / side / front view">
+    <!-- clickable faces -->
+    <polygon class="face" data-view="top"   points="50,8 88,30 50,52 12,30" />
+    <polygon class="face" data-view="front" points="88,30 88,70 50,92 50,52" />
+    <polygon class="face" data-view="side"  points="12,30 50,52 50,92 12,70" />
+    <!-- perspective "home" indicator: down-triangle on the top face -->
+    <polygon class="home" data-view="perspective" points="42,26 58,26 50,40" />
+    <!-- outline -->
+    <polygon class="edge" points="50,8 88,30 88,70 50,92 12,70 12,30" fill="none" />
+    <polyline class="edge" points="12,30 50,52 88,30" fill="none" />
+    <polyline class="edge" points="50,52 50,92" fill="none" />
   </svg>
 
   <!-- bottom-left: games / periods / rounds -->

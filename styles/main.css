@@ -74,10 +74,17 @@ select {
   min-width: 190px;
 }
 
-/* ---------- top-right: interactive view cube ---------- */
+/* ---------- top-right: interactive ViewCube ---------- */
 #logo { position: fixed; top: 24px; right: 30px; z-index: 11; cursor: grab; touch-action: none; user-select: none; }
 #logo.grabbing { cursor: grabbing; }
-#logo:hover { opacity: 0.8; }
+#logo .edge { stroke: #1b2434; stroke-width: 2.4; stroke-linejoin: round; }
+#logo .face { fill: #1b2434; cursor: pointer; transition: fill-opacity 0.12s; }
+#logo .face[data-view="top"] { fill-opacity: 0.14; }
+#logo .face[data-view="front"] { fill-opacity: 0.30; }
+#logo .face[data-view="side"] { fill-opacity: 0.08; }
+#logo .face:hover { fill: #3a7bd5; fill-opacity: 0.55; }
+#logo .home { fill: #1b2434; opacity: 0.55; cursor: pointer; }
+#logo .home:hover { fill: #3a7bd5; opacity: 0.9; }
 
 /* ---------- dark pill toggles ---------- */
 .pills { display: flex; gap: 8px; flex-wrap: wrap; }

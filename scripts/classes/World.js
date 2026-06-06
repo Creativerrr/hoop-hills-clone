@@ -46,29 +46,59 @@ export default class World {
     });
   }
 
-  // drag the view-cube to orbit the camera around the terrain
+  // ViewCube: drag to free-rotate, click a face to snap to a canonical view
+  VIEWS = {
+    perspective: [225, 33], // 3/4 hero
+    top: [225, 89],         // looking down → heat map
+    front: [270, 4],        // along games axis → line chart (time × margin)
+    side: [180, 4],         // along time axis → bar chart (games × final margin)
+  };
+
   bindGizmo(el) {
-    let dragging = false, lx = 0, ly = 0;
+    let down = false, moved = false, lx = 0, ly = 0, startView = null;
     el.addEventListener("pointerdown", (e) => {
-      dragging = true; lx = e.clientX; ly = e.clientY;
+      down = true; moved = false; lx = e.clientX; ly = e.clientY;
+      startView = e.target?.dataset?.view || null;
       el.setPointerCapture(e.pointerId); el.classList.add("grabbing"); e.preventDefault();
     });
     el.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
+      if (!down) return;
       const dx = e.clientX - lx, dy = e.clientY - ly;
+      if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
       lx = e.clientX; ly = e.clientY;
-      this.orbitDelta(-dx * 0.011, dy * 0.011);
+      if (moved) this.orbitDelta(-dx * 0.011, dy * 0.011);
     });
-    const end = (e) => { dragging = false; el.classList.remove("grabbing"); try { el.releasePointerCapture(e.pointerId); } catch {} };
+    const end = (e) => {
+      if (down && !moved && startView && this.VIEWS[startView]) {
+        this.snapToView(...this.VIEWS[startView]);
+      }
+      down = false; el.classList.remove("grabbing");
+      try { el.releasePointerCapture(e.pointerId); } catch {}
+    };
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", end);
   }
 
+  posForView(azDeg, elDeg) {
+    const az = THREE.MathUtils.degToRad(azDeg), el = THREE.MathUtils.degToRad(elDeg);
+    const c = this.controls.target;
+    return new THREE.Vector3(
+      c.x + this.reach * Math.cos(el) * Math.cos(az),
+      c.y + this.reach * Math.sin(el),
+      c.z + this.reach * Math.cos(el) * Math.sin(az)
+    );
+  }
+
+  snapToView(azDeg, elDeg) {
+    this.snap = { from: this.camera.position.clone(), to: this.posForView(azDeg, elDeg), t: 0 };
+  }
+
   orbitDelta(dTheta, dPhi) {
+    this.snap = null; // manual drag cancels any running snap
     const offset = this.camera.position.clone().sub(this.controls.target);
     const sph = new THREE.Spherical().setFromVector3(offset);
     sph.theta += dTheta;
-    sph.phi = Math.max(0.12, Math.min(Math.PI / 2 - 0.04, sph.phi + dPhi));
+    sph.phi = Math.max(0.012, Math.min(Math.PI / 2 - 0.02, sph.phi + dPhi));
     offset.setFromSpherical(sph);
     this.camera.position.copy(this.controls.target).add(offset);
     this.camera.lookAt(this.controls.target);
@@ -170,14 +200,8 @@ export default class World {
     this.frustum = fit;
     this.updateFrustum(aspect);
     // low front-left hero angle: long (games) axis recedes to upper-right, like the original
-    const az = THREE.MathUtils.degToRad(this.camAzimuth ?? 225);
-    const el = THREE.MathUtils.degToRad(this.camElevation ?? 33);
-    const reach = Math.max(size.x, size.z) * 1.3;
-    this.camera.position.set(
-      center.x + reach * Math.cos(el) * Math.cos(az),
-      center.y + reach * Math.sin(el),
-      center.z + reach * Math.cos(el) * Math.sin(az)
-    );
+    this.reach = Math.max(size.x, size.z) * 1.3;
+    this.camera.position.copy(this.posForView(225, 33));
     this.camera.lookAt(center);
   }
 
@@ -196,6 +220,13 @@ export default class World {
   }
 
   animate() {
+    if (this.snap) {
+      this.snap.t = Math.min(1, this.snap.t + 0.07);
+      const k = this.snap.t < 0.5 ? 2 * this.snap.t * this.snap.t : 1 - Math.pow(-2 * this.snap.t + 2, 2) / 2; // easeInOutQuad
+      this.camera.position.lerpVectors(this.snap.from, this.snap.to, k);
+      this.camera.lookAt(this.controls.target);
+      if (this.snap.t >= 1) this.snap = null;
+    }
     this.controls.update();
     this.annotations?.update(this.camera, window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene, this.camera);
