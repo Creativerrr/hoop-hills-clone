@@ -49,9 +49,9 @@ export default class World {
   // ViewCube: drag to free-rotate, click a face to snap to a canonical view
   VIEWS = {
     perspective: [225, 33], // 3/4 hero
-    top: [225, 89],         // looking down → heat map
-    front: [270, 4],        // along games axis → line chart (time × margin)
-    side: [180, 4],         // along time axis → bar chart (games × final margin)
+    top: [270, 89.5],       // straight down, axis-aligned → heat map
+    front: [270, 1.5],      // along games axis → line chart (time × margin)
+    side: [180, 1.5],       // along time axis → bar chart (games × final margin)
   };
 
   bindGizmo(el) {
