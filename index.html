@@ -43,17 +43,17 @@
   </div>
 
   <!-- top-right: interactive ViewCube — drag to rotate, click a face to snap to a view -->
-  <svg id="logo" viewBox="0 0 100 100" width="64" height="64" title="Drag to rotate · click a face for top / side / front view">
-    <!-- clickable faces -->
-    <polygon class="face" data-view="top"   points="50,8 88,30 50,52 12,30" />
-    <polygon class="face" data-view="front" points="88,30 88,70 50,92 50,52" />
-    <polygon class="face" data-view="side"  points="12,30 50,52 50,92 12,70" />
-    <!-- perspective "home" indicator: down-triangle on the top face -->
-    <polygon class="home" data-view="perspective" points="42,26 58,26 50,40" />
-    <!-- outline -->
-    <polygon class="edge" points="50,8 88,30 88,70 50,92 12,70 12,30" fill="none" />
-    <polyline class="edge" points="12,30 50,52 88,30" fill="none" />
-    <polyline class="edge" points="50,52 50,92" fill="none" />
+  <svg id="logo" viewBox="0 0 100 100" width="72" height="72" title="Drag to rotate · click a face for top / side / front view">
+    <!-- light clickable faces (clean isometric cube: wider than tall, equal vertical edges) -->
+    <polygon class="face face-top"   data-view="top"   points="50,20 87,35 50,50 13,35" />
+    <polygon class="face face-front" data-view="front" points="87,35 87,65 50,80 50,50" />
+    <polygon class="face face-side"  data-view="side"  points="13,35 50,50 50,80 13,65" />
+    <!-- perspective "home": bold purple down-triangle on the top face -->
+    <polygon class="home" data-view="perspective" points="38,27 62,27 50,47" />
+    <!-- crisp outline -->
+    <polygon class="edge" points="50,20 87,35 87,65 50,80 13,65 13,35" fill="none" />
+    <polyline class="edge" points="13,35 50,50 87,35" fill="none" />
+    <polyline class="edge" points="50,50 50,80" fill="none" />
   </svg>
 
   <!-- bottom-left: games / periods / rounds -->
