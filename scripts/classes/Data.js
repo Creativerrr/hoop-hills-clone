@@ -11,7 +11,7 @@ export default class Data {
 
   async loadTeams(season = "2024-25") {
     const rows = await d3.csv(`${this.basePath}/teams-${season}.csv`);
-    this.teams = rows.map((r) => ({ id: r.id, nick: r.nick, name: r.name }));
+    this.teams = rows.map((r) => ({ id: r.id, nick: r.nick, name: r.name, abbr: r.initials || r.id }));
     return this.teams;
   }
 

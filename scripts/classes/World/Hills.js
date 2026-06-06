@@ -44,6 +44,13 @@ export default class Hills {
     return (this.depth + this.gap) * order;
   }
 
+  // point differential holding at elapsed time t (step function)
+  pdAtTime(game, t) {
+    let pd = 0;
+    for (const s of game.samples) { if (s.t <= t) pd = s.pd; else break; }
+    return pd;
+  }
+
   // map a segment's top height to a base color (lighting adds the tonal depth on top)
   colorForHeight(h) {
     if (h >= 0) {

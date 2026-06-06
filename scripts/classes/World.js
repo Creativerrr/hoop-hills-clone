@@ -109,11 +109,17 @@ export default class World {
     if (!this.hills) return;
     this.raycaster.setFromCamera(this.pointer, this.camera);
     const hits = this.raycaster.intersectObjects(this.hills.meshes, false);
-    const game = hits.length ? hits[0].object.userData.game : null;
-    if (game !== this.hovered) {
-      this.hovered = game;
-      this.app.onHover?.(game, this.pointerClient);
+    if (!hits.length) {
+      if (this.hovered) { this.hovered = null; this.app.onHover?.(null); }
+      return;
     }
+    const game = hits[0].object.userData.game;
+    // moment under the cursor: convert the hit's world-x back to game time → point differential
+    const localX = hits[0].point.x - this.hills.group.position.x;
+    const t = localX / this.hills.widthPerSecond;
+    const pd = this.hills.pdAtTime(game, t);
+    this.hovered = game;
+    this.app.onHover?.(game, this.pointerClient, pd);
   }
 
   setupRenderer() {

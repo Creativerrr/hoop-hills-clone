@@ -168,15 +168,20 @@ export default class App {
     document.getElementById("bar-lost").style.flex = lost / total;
   }
 
-  onHover(game, client) {
+  teamAbbr(id) { return this.teams.find((t) => t.id === id)?.abbr || id; }
+
+  onHover(game, client, pd = 0) {
     if (!game || !client) { this.tooltipEl.hidden = true; return; }
+    const me = this.teamAbbr(this.team), opp = this.teamAbbr(game.opponent);
+    // moment under the cursor, like the original: "BKN leading by 24 vs MIL"
+    let state;
+    if (pd > 0) state = `<b class="win">leading</b> by ${pd}`;
+    else if (pd < 0) state = `<b class="loss">trailing</b> by ${-pd}`;
+    else state = `<b>tied</b>`;
+    this.tooltipEl.querySelector(".tt-head").innerHTML = `${me} ${state} vs ${opp}`;
     const won = game.win;
-    this.tooltipEl.querySelector(".tt-head").textContent =
-      `${this.teamName(this.team)} vs ${this.teamName(game.opponent)}`;
     this.tooltipEl.querySelector(".tt-body").innerHTML =
-      `${game.date} · ${TYPE_LABEL[game.type] || game.type}<br>` +
-      `<span class="${won ? "win" : "loss"}">${won ? "W" : "L"} ${game.teamScore}–${game.oppScore}</span> · ` +
-      `biggest lead +${game.maxLead}, trail ${game.maxTrail}`;
+      `${game.date} · <span class="${won ? "win" : "loss"}">${won ? "W" : "L"} ${game.teamScore}–${game.oppScore}</span>`;
     this.tooltipEl.style.left = client.x + "px";
     this.tooltipEl.style.top = client.y + "px";
     this.tooltipEl.hidden = false;
